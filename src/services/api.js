@@ -11,9 +11,13 @@ export const getAccessToken = () => {
   return inMemoryAccessToken;
 };
 
+// Base URL for API requests: configurable via VITE_API_BASE_URL for production (e.g., Vercel),
+// defaulting to '/api' for seamless local Vite development proxy
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
 // Create a centralized Axios instance
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: API_BASE_URL,
   withCredentials: true, // Send HTTP-only cookies with every request
   headers: {
     'Content-Type': 'application/json',
@@ -48,7 +52,11 @@ api.interceptors.response.use(
 
       try {
         // Attempt to obtain a fresh access token using the HTTP-only refresh cookie
-        const response = await axios.post('/api/auth/refresh', {}, { withCredentials: true });
+        const response = await axios.post(
+          `${API_BASE_URL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
         const newAccessToken = response.data?.data?.accessToken;
 
         if (newAccessToken) {
