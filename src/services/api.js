@@ -12,8 +12,15 @@ export const getAccessToken = () => {
 };
 
 // Base URL for API requests: configurable via VITE_API_BASE_URL for production (e.g., Vercel),
-// defaulting to '/api' for seamless local Vite development proxy
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+// defaulting to '/api' for seamless local Vite development proxy.
+// Automatically sanitize to ensure '/api' suffix is present.
+const formatApiBaseUrl = (rawUrl) => {
+  if (!rawUrl || rawUrl === '/api') return '/api';
+  const clean = rawUrl.trim().replace(/\/+$/, '');
+  return clean.endsWith('/api') ? clean : `${clean}/api`;
+};
+
+const API_BASE_URL = formatApiBaseUrl(import.meta.env.VITE_API_BASE_URL);
 
 // Create a centralized Axios instance
 const api = axios.create({
